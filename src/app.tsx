@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { Box, useApp } from "ink";
-import type { ProcessedFile } from "./types.js";
+import { Box, Text, useApp } from "ink";
+import type { FlatRow, ProcessedFile } from "./types.js";
 import { execDiff, type ExecDiffOpts } from "./git.js";
 import { parsePatch } from "./parse.js";
 import { flatten } from "./flatten.js";
@@ -8,6 +8,33 @@ import { Viewport } from "./components/viewport.js";
 import { HelpOverlay } from "./components/help-overlay.js";
 import { useNavigation } from "./hooks/use-navigation.js";
 import { useTerminalSize } from "./hooks/use-terminal-size.js";
+
+function currentFileName(rows: FlatRow[], scrollOffset: number): string | null {
+  for (let i = scrollOffset; i >= 0; i--) {
+    const row = rows[i];
+    if (row.kind === "file-box-top") {
+      const f = row.file;
+      return f.from === "/dev/null"
+        ? f.to
+        : f.from === f.to
+          ? f.to
+          : `${f.from} \u2192 ${f.to}`;
+    }
+  }
+  // If no file found above, look forward (e.g. scrolled to the summary row)
+  for (let i = scrollOffset + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row.kind === "file-box-top") {
+      const f = row.file;
+      return f.from === "/dev/null"
+        ? f.to
+        : f.from === f.to
+          ? f.to
+          : `${f.from} \u2192 ${f.to}`;
+    }
+  }
+  return null;
+}
 
 interface AppProps {
   files: ProcessedFile[];
@@ -61,6 +88,8 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
     onReload: reload,
   });
 
+  const fileName = currentFileName(rows, scrollOffset);
+
   return (
     <Box flexDirection="column">
       {showHelp ? (
@@ -73,6 +102,11 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
           width={width}
           collapsedFiles={collapsedFiles}
         />
+      )}
+      {fileName && (
+        <Box>
+          <Text dimColor>{fileName}</Text>
+        </Box>
       )}
     </Box>
   );
