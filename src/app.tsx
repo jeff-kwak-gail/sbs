@@ -1,6 +1,8 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Box, useApp } from "ink";
 import type { ProcessedFile } from "./types.js";
+import { execDiff, type ExecDiffOpts } from "./git.js";
+import { parsePatch } from "./parse.js";
 import { flatten } from "./flatten.js";
 import { Viewport } from "./components/viewport.js";
 import { HelpOverlay } from "./components/help-overlay.js";
@@ -9,18 +11,32 @@ import { useTerminalSize } from "./hooks/use-terminal-size.js";
 
 interface AppProps {
   files: ProcessedFile[];
+  range?: string;
+  diffOpts?: ExecDiffOpts;
 }
 
-export function App({ files }: AppProps) {
+export function App({ files: initialFiles, range, diffOpts }: AppProps) {
   const { exit } = useApp();
   const [termWidth, termHeight] = useTerminalSize();
 
   const width = termWidth;
   const height = termHeight - 1; // reserve 1 row for status
 
+  const [files, setFiles] = useState(initialFiles);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [collapsedFiles, setCollapsedFiles] = useState<Set<number>>(new Set());
   const [showHelp, setShowHelp] = useState(false);
+
+  const reload = useCallback(() => {
+    try {
+      const raw = execDiff(range, diffOpts);
+      if (!raw.trim()) return;
+      const newFiles = parsePatch(raw);
+      if (newFiles.length > 0) setFiles(newFiles);
+    } catch {
+      // If reload fails, keep current state
+    }
+  }, [range, diffOpts]);
 
   const rows = useMemo(
     () => flatten(files, collapsedFiles),
@@ -42,6 +58,7 @@ export function App({ files }: AppProps) {
     showHelp,
     setShowHelp,
     onQuit: exit,
+    onReload: reload,
   });
 
   return (

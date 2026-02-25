@@ -1,6 +1,8 @@
 import React from "react";
 import { Box, Text } from "ink";
 
+export const VERSION = "0.3.0";
+
 interface SummaryProps {
   totalFiles: number;
   additions: number;
@@ -10,7 +12,7 @@ interface SummaryProps {
 export function Summary({ totalFiles, additions, deletions }: SummaryProps) {
   return (
     <Box>
-      <Text bold>Side-by-Side </Text>
+      <Text bold>Side-by-Side (sbs v{VERSION}) </Text>
       <Text dimColor>q - quit, h - help  </Text>
       <Text bold>
         {totalFiles} file{totalFiles !== 1 ? "s" : ""} with{" "}

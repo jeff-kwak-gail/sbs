@@ -71,7 +71,8 @@ if (files.length === 0) {
   process.exit(0);
 }
 
-const { waitUntilExit } = render(<App files={files} />, {
+const diffOpts = { noUntracked: cli.flags.noUntracked };
+const { waitUntilExit } = render(<App files={files} range={range} diffOpts={diffOpts} />, {
   exitOnCtrlC: true,
 });
 

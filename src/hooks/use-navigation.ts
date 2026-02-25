@@ -12,6 +12,7 @@ interface UseNavigationOptions {
   showHelp: boolean;
   setShowHelp: (show: boolean) => void;
   onQuit: () => void;
+  onReload: () => void;
 }
 
 export function useNavigation({
@@ -24,6 +25,7 @@ export function useNavigation({
   showHelp,
   setShowHelp,
   onQuit,
+  onReload,
 }: UseNavigationOptions) {
   const maxOffset = Math.max(0, rows.length - height);
 
@@ -86,6 +88,12 @@ export function useNavigation({
     // Quit
     if (input === "q") {
       onQuit();
+      return;
+    }
+
+    // Reload diff
+    if (input === "r") {
+      onReload();
       return;
     }
 
