@@ -32,6 +32,12 @@ sbs abc1234..def5678
 
 When called with no arguments, `sbs` diffs against your repository's default branch (auto-detected from `origin/HEAD`, falling back to `main` then `master`).
 
+Untracked files are included by default (shown as entirely new files). Use `--no-untracked` to exclude them:
+
+```bash
+sbs --no-untracked
+```
+
 ## Interface
 
 The TUI opens in a full-screen alternate buffer — your scrollback history is preserved when you quit.

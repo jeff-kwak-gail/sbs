@@ -13,13 +13,23 @@ const cli = meow(
   Arguments
     range    Git range expression (default: <default-branch>...HEAD)
 
+  Options
+    --no-untracked    Exclude untracked files from the diff
+
   Examples
     $ sbs
     $ sbs HEAD~2..HEAD~1
     $ sbs main..feature
+    $ sbs --no-untracked
 `,
   {
     importMeta: import.meta,
+    flags: {
+      noUntracked: {
+        type: "boolean",
+        default: false,
+      },
+    },
   },
 );
 
@@ -40,7 +50,7 @@ const range = cli.input[0];
 
 let raw: string;
 try {
-  raw = execDiff(range);
+  raw = execDiff(range, { noUntracked: cli.flags.noUntracked });
 } catch (err: any) {
   cleanup();
   console.error("Error running git diff:", err.message);
