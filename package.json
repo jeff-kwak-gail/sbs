@@ -1,0 +1,35 @@
+{
+  "name": "@kwak/sbs",
+  "version": "0.1.0",
+  "description": "Side-by-side git diff TUI",
+  "type": "module",
+  "license": "MIT",
+  "main": "dist/cli.js",
+  "bin": {
+    "sbs": "dist/cli.js"
+  },
+  "files": ["dist"],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsx src/cli.tsx",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "ink": "^5.2.0",
+    "react": "^18.3.1",
+    "parse-diff": "^0.11.1",
+    "meow": "^13.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsx": "^4.19.0",
+    "tsup": "^8.3.0",
+    "vitest": "^4.0.0",
+    "ink-testing-library": "^4.0.0",
+    "@types/react": "^18.3.0"
+  }
+}
