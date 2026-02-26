@@ -47,10 +47,7 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
   const [termWidth, termHeight] = useTerminalSize();
 
   const width = termWidth;
-  // Reserve 2 rows: 1 for the status bar, 1 to keep outputHeight < stdout.rows.
-  // This avoids Ink's clearTerminal render path which uses \x1b[3J (clear scrollback)
-  // that misbehaves in tmux + alternate screen environments.
-  const height = termHeight - 2;
+  const height = termHeight - 1; // reserve 1 row for status
 
   const [files, setFiles] = useState(initialFiles);
   const [scrollOffset, setScrollOffset] = useState(0);
