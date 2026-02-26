@@ -9,24 +9,34 @@ import { alignChunk } from "./align.js";
  *
  * @param files - Parsed diff files
  * @param collapsedFiles - Set of file indices that are collapsed
+ * @param closedFiles - Set of file indices that are fully hidden
  */
 export function flatten(
   files: ProcessedFile[],
   collapsedFiles: Set<number> = new Set(),
+  closedFiles: Set<number> = new Set(),
 ): FlatRow[] {
   const rows: FlatRow[] = [];
 
-  const totalAdditions = files.reduce((sum, f) => sum + f.additions, 0);
-  const totalDeletions = files.reduce((sum, f) => sum + f.deletions, 0);
+  let totalAdditions = 0;
+  let totalDeletions = 0;
+  let visibleFileCount = 0;
+  for (let i = 0; i < files.length; i++) {
+    if (closedFiles.has(i)) continue;
+    totalAdditions += files[i].additions;
+    totalDeletions += files[i].deletions;
+    visibleFileCount++;
+  }
 
   rows.push({
     kind: "summary",
-    totalFiles: files.length,
+    totalFiles: visibleFileCount,
     additions: totalAdditions,
     deletions: totalDeletions,
   });
 
   for (let i = 0; i < files.length; i++) {
+    if (closedFiles.has(i)) continue;
     const file = files[i];
     rows.push({ kind: "file-box-top", fileIndex: i, file });
 

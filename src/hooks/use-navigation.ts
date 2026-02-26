@@ -13,6 +13,7 @@ interface UseNavigationOptions {
   setShowHelp: (show: boolean) => void;
   onQuit: () => void;
   onReload: () => void;
+  onCloseFile: (fileIndex: number) => void;
 }
 
 export function useNavigation({
@@ -26,6 +27,7 @@ export function useNavigation({
   setShowHelp,
   onQuit,
   onReload,
+  onCloseFile,
 }: UseNavigationOptions) {
   const maxOffset = Math.max(0, rows.length - height);
 
@@ -46,7 +48,12 @@ export function useNavigation({
       const row = rows[i];
       if (row && row.kind === "file-box-top") return row.fileIndex;
     }
-    return 0;
+    // If no file found above (e.g. on summary row), look forward
+    for (let i = scrollOffset + 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (row && row.kind === "file-box-top") return row.fileIndex;
+    }
+    return -1;
   }
 
   /** Find the row index of a given file-box-top by fileIndex */
@@ -58,13 +65,28 @@ export function useNavigation({
     return 0;
   }
 
-  /** Count total files in the row list */
-  function totalFiles(): number {
-    let count = 0;
+  /** Return the fileIndex of the next visible file after the given one, or -1 */
+  function nextFileIndex(after: number): number {
+    let found = false;
     for (const row of rows) {
-      if (row.kind === "file-box-top") count++;
+      if (row.kind === "file-box-top") {
+        if (found) return row.fileIndex;
+        if (row.fileIndex === after) found = true;
+      }
     }
-    return count;
+    return -1;
+  }
+
+  /** Return the fileIndex of the previous visible file before the given one, or -1 */
+  function prevFileIndex(before: number): number {
+    let prev = -1;
+    for (const row of rows) {
+      if (row.kind === "file-box-top") {
+        if (row.fileIndex === before) return prev;
+        prev = row.fileIndex;
+      }
+    }
+    return -1;
   }
 
   useInput((input, key) => {
@@ -136,9 +158,10 @@ export function useNavigation({
     // Next file
     if (input === "n") {
       const cur = currentFileIndex();
-      const total = totalFiles();
-      if (cur < total - 1) {
-        setScrollOffset(clamp(findFileRow(cur + 1)));
+      if (cur === -1) return;
+      const next = nextFileIndex(cur);
+      if (next !== -1) {
+        setScrollOffset(clamp(findFileRow(next)));
       }
       return;
     }
@@ -146,15 +169,26 @@ export function useNavigation({
     // Previous file
     if (input === "p") {
       const cur = currentFileIndex();
-      if (cur > 0) {
-        setScrollOffset(clamp(findFileRow(cur - 1)));
+      if (cur === -1) return;
+      const prev = prevFileIndex(cur);
+      if (prev !== -1) {
+        setScrollOffset(clamp(findFileRow(prev)));
       }
+      return;
+    }
+
+    // Close file — remove entirely from viewport
+    if (input === "c") {
+      const idx = currentFileIndex();
+      if (idx === -1) return;
+      onCloseFile(idx);
       return;
     }
 
     // Toggle collapse — works from any row by resolving the current file
     if (key.return || input === "o") {
       const idx = currentFileIndex();
+      if (idx === -1) return;
       const isCollapsing = !collapsedFiles.has(idx);
       setCollapsedFiles((prev) => {
         const next = new Set(prev);

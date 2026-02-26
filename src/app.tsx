@@ -10,9 +10,9 @@ import { useNavigation } from "./hooks/use-navigation.js";
 import { useTerminalSize } from "./hooks/use-terminal-size.js";
 
 function currentFileName(rows: FlatRow[], scrollOffset: number): string | null {
-  for (let i = scrollOffset; i >= 0; i--) {
+  for (let i = Math.min(scrollOffset, rows.length - 1); i >= 0; i--) {
     const row = rows[i];
-    if (row.kind === "file-box-top") {
+    if (row?.kind === "file-box-top") {
       const f = row.file;
       return f.from === "/dev/null"
         ? f.to
@@ -52,6 +52,7 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
   const [files, setFiles] = useState(initialFiles);
   const [scrollOffset, setScrollOffset] = useState(0);
   const [collapsedFiles, setCollapsedFiles] = useState<Set<number>>(new Set());
+  const [closedFiles, setClosedFiles] = useState<Set<number>>(new Set());
   const [showHelp, setShowHelp] = useState(false);
 
   const reload = useCallback(() => {
@@ -59,16 +60,27 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
       const raw = execDiff(range, diffOpts);
       if (!raw.trim()) return;
       const newFiles = parsePatch(raw);
-      if (newFiles.length > 0) setFiles(newFiles);
+      if (newFiles.length > 0) {
+        setFiles(newFiles);
+        setClosedFiles(new Set());
+      }
     } catch {
       // If reload fails, keep current state
     }
   }, [range, diffOpts]);
 
   const rows = useMemo(
-    () => flatten(files, collapsedFiles),
-    [files, collapsedFiles],
+    () => flatten(files, collapsedFiles, closedFiles),
+    [files, collapsedFiles, closedFiles],
   );
+
+  const handleCloseFile = useCallback((fileIndex: number) => {
+    setClosedFiles((prev) => {
+      const next = new Set(prev);
+      next.add(fileIndex);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
     const maxOffset = Math.max(0, rows.length - height);
@@ -86,6 +98,7 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
     setShowHelp,
     onQuit: exit,
     onReload: reload,
+    onCloseFile: handleCloseFile,
   });
 
   const fileName = currentFileName(rows, scrollOffset);
