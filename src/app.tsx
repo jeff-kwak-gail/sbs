@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Box, Text, useApp } from "ink";
-import type { FlatRow, ProcessedFile } from "./types.js";
+import type { FlatRow, ProcessedFile, ViewMode } from "./types.js";
 import { execDiff, type ExecDiffOpts } from "./git.js";
 import { parsePatch } from "./parse.js";
 import { flatten } from "./flatten.js";
@@ -54,6 +54,7 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
   const [collapsedFiles, setCollapsedFiles] = useState<Set<number>>(new Set());
   const [closedFiles, setClosedFiles] = useState<Set<number>>(new Set());
   const [showHelp, setShowHelp] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("both");
 
   const reload = useCallback(() => {
     try {
@@ -99,6 +100,8 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
     onQuit: exit,
     onReload: reload,
     onCloseFile: handleCloseFile,
+    viewMode,
+    setViewMode,
   });
 
   const fileName = currentFileName(rows, scrollOffset);
@@ -114,6 +117,7 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
           height={height}
           width={width}
           collapsedFiles={collapsedFiles}
+          viewMode={viewMode}
         />
       )}
       {fileName && (

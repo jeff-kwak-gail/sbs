@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Text } from "ink";
-import type { FlatRow } from "../types.js";
+import type { FlatRow, ViewMode } from "../types.js";
 import { Summary } from "./summary.js";
 import { FileBoxTop } from "./file-box-top.js";
 import { FileBoxBottom } from "./file-box-bottom.js";
@@ -13,6 +13,7 @@ interface ViewportProps {
   height: number;
   width: number;
   collapsedFiles: Set<number>;
+  viewMode: ViewMode;
 }
 
 function InteriorRow({ children, innerWidth }: { children: React.ReactNode; innerWidth: number }) {
@@ -25,7 +26,7 @@ function InteriorRow({ children, innerWidth }: { children: React.ReactNode; inne
   );
 }
 
-export function Viewport({ rows, scrollOffset, height, width, collapsedFiles }: ViewportProps) {
+export function Viewport({ rows, scrollOffset, height, width, collapsedFiles, viewMode }: ViewportProps) {
   const visible = rows.slice(scrollOffset, scrollOffset + height);
   const totalRows = rows.length;
   const needsScrollbar = totalRows > height;
@@ -84,7 +85,7 @@ export function Viewport({ rows, scrollOffset, height, width, collapsedFiles }: 
           case "line-pair":
             content = (
               <InteriorRow key={key} innerWidth={interiorWidth}>
-                <LinePair row={row.row} halfWidth={interiorHalfWidth} />
+                <LinePair row={row.row} halfWidth={interiorHalfWidth} viewMode={viewMode} fullWidth={interiorWidth} />
               </InteriorRow>
             );
             break;

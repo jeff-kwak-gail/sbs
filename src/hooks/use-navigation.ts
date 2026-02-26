@@ -1,6 +1,6 @@
 import { useInput } from "ink";
 import { useRef, useEffect } from "react";
-import type { FlatRow } from "../types.js";
+import type { FlatRow, ViewMode } from "../types.js";
 
 interface UseNavigationOptions {
   rows: FlatRow[];
@@ -14,6 +14,8 @@ interface UseNavigationOptions {
   onQuit: () => void;
   onReload: () => void;
   onCloseFile: (fileIndex: number) => void;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode | ((prev: ViewMode) => ViewMode)) => void;
 }
 
 export function useNavigation({
@@ -28,6 +30,8 @@ export function useNavigation({
   onQuit,
   onReload,
   onCloseFile,
+  viewMode,
+  setViewMode,
 }: UseNavigationOptions) {
   const maxOffset = Math.max(0, rows.length - height);
 
@@ -182,6 +186,26 @@ export function useNavigation({
       const idx = currentFileIndex();
       if (idx === -1) return;
       onCloseFile(idx);
+      return;
+    }
+
+    // View mode: [ cycles left → both → right
+    if (input === "[") {
+      setViewMode((prev) => {
+        if (prev === "left") return "both";
+        if (prev === "both") return "right";
+        return prev; // already right, no-op
+      });
+      return;
+    }
+
+    // View mode: ] cycles right → both → left
+    if (input === "]") {
+      setViewMode((prev) => {
+        if (prev === "right") return "both";
+        if (prev === "both") return "left";
+        return prev; // already left, no-op
+      });
       return;
     }
 

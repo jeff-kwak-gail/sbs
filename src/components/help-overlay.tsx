@@ -17,6 +17,8 @@ const HELP_ENTRIES: [string, string][] = [
   ["p", "Previous file"],
   ["Enter / o", "Toggle collapse"],
   ["c", "Close file"],
+  ["[", "Right side only"],
+  ["]", "Left side only"],
   ["r", "Reload diff"],
   ["h", "Show help"],
   ["q", "Quit"],

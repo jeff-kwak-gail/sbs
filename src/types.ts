@@ -50,3 +50,5 @@ export type FlatRow =
   | { kind: "file-box-bottom"; fileIndex: number }
   | { kind: "hunk-header"; fileIndex: number; content: string }
   | { kind: "line-pair"; fileIndex: number; row: AlignedRow };
+
+export type ViewMode = "both" | "left" | "right";

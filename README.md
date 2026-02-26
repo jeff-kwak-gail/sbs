@@ -1,6 +1,6 @@
 # sbs
 
-**v0.6.3**
+**v0.7.0**
 
 A terminal-based side-by-side git diff viewer. Renders diffs in a full-screen TUI with vim-style navigation, collapsible file sections, and color-coded additions/deletions.
 
@@ -69,6 +69,8 @@ Files can be collapsed to hide their diff content, making it easy to skim large 
 | `p`               | Previous file        |
 | `Enter` / `o`    | Toggle file collapse |
 | `c`               | Close file           |
+| `[`               | Right side only      |
+| `]`               | Left side only       |
 | `r`               | Reload diff          |
 | `h` (hold)        | Show help overlay    |
 | `q`               | Quit                 |
