@@ -33,19 +33,8 @@ const cli = meow(
   },
 );
 
-// Enter alternate screen and ensure cursor is at home position
-process.stdout.write("\x1b[?1049h\x1b[H");
-
-// Ink's clearTerminal uses \x1b[3J (clear scrollback buffer) which can cause
-// viewport shifts on some terminal emulators (e.g. Windows Terminal via WSL2/tmux).
-// On the alternate screen there is no scrollback buffer, so strip it out.
-const origWrite = process.stdout.write.bind(process.stdout);
-process.stdout.write = ((data: unknown, ...args: unknown[]) => {
-  if (typeof data === "string") {
-    data = data.replace(/\x1b\[3J/g, "");
-  }
-  return (origWrite as Function)(data, ...args);
-}) as typeof process.stdout.write;
+// Enter alternate screen
+process.stdout.write("\x1b[?1049h");
 
 // Restore on exit
 function cleanup() {

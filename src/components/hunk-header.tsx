@@ -7,7 +7,8 @@ interface HunkHeaderProps {
 }
 
 export function HunkHeader({ content, width }: HunkHeaderProps) {
-  const text = content.length >= width ? content.slice(0, width) : content + " ".repeat(width - content.length);
+  const expanded = content.replace(/\t/g, "    ");
+  const text = expanded.length >= width ? expanded.slice(0, width) : expanded + " ".repeat(width - expanded.length);
   return (
     <Box>
       <Text color="cyan" dimColor>{text}</Text>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Text } from "ink";
 
-export const VERSION = "0.6.2";
+export const VERSION = "0.6.3";
 
 interface SummaryProps {
   totalFiles: number;

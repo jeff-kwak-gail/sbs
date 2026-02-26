@@ -1,6 +1,6 @@
 # sbs
 
-**v0.6.2**
+**v0.6.3**
 
 A terminal-based side-by-side git diff viewer. Renders diffs in a full-screen TUI with vim-style navigation, collapsible file sections, and color-coded additions/deletions.
 

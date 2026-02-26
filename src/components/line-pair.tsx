@@ -7,10 +7,16 @@ interface LinePairProps {
   halfWidth: number;
 }
 
-/** Pad or truncate a string to exactly `width` characters */
+/** Expand tab characters to spaces so display width matches string length */
+function expandTabs(str: string, tabWidth = 4): string {
+  return str.replace(/\t/g, " ".repeat(tabWidth));
+}
+
+/** Pad or truncate a string to exactly `width` visible columns */
 function fitTo(str: string, width: number): string {
-  if (str.length >= width) return str.slice(0, width);
-  return str + " ".repeat(width - str.length);
+  const expanded = expandTabs(str);
+  if (expanded.length >= width) return expanded.slice(0, width);
+  return expanded + " ".repeat(width - expanded.length);
 }
 
 /** Strip the leading +/- / space from diff content */
