@@ -18,6 +18,29 @@ interface UseNavigationOptions {
   setViewMode: (mode: ViewMode | ((prev: ViewMode) => ViewMode)) => void;
 }
 
+/** Compute the maximum scroll offset so the last file header is reachable */
+export function computeMaxOffset(rows: Pick<FlatRow, "kind">[], height: number): number {
+  let lastFileRow = 0;
+  for (let i = rows.length - 1; i >= 0; i--) {
+    if (rows[i]?.kind === "file-box-top") { lastFileRow = i; break; }
+  }
+  return Math.max(0, rows.length - height, lastFileRow);
+}
+
+/** Cycle view mode toward right-only: left → both → right */
+export function cycleViewModeRight(prev: ViewMode): ViewMode {
+  if (prev === "left") return "both";
+  if (prev === "both") return "right";
+  return prev;
+}
+
+/** Cycle view mode toward left-only: right → both → left */
+export function cycleViewModeLeft(prev: ViewMode): ViewMode {
+  if (prev === "right") return "both";
+  if (prev === "both") return "left";
+  return prev;
+}
+
 export function useNavigation({
   rows,
   scrollOffset,
@@ -33,7 +56,7 @@ export function useNavigation({
   viewMode,
   setViewMode,
 }: UseNavigationOptions) {
-  const maxOffset = Math.max(0, rows.length - height);
+  const maxOffset = computeMaxOffset(rows, height);
 
   const clamp = (n: number) => Math.max(0, Math.min(n, maxOffset));
 
@@ -191,21 +214,13 @@ export function useNavigation({
 
     // View mode: [ cycles left → both → right
     if (input === "[") {
-      setViewMode((prev) => {
-        if (prev === "left") return "both";
-        if (prev === "both") return "right";
-        return prev; // already right, no-op
-      });
+      setViewMode(cycleViewModeRight);
       return;
     }
 
     // View mode: ] cycles right → both → left
     if (input === "]") {
-      setViewMode((prev) => {
-        if (prev === "right") return "both";
-        if (prev === "both") return "left";
-        return prev; // already left, no-op
-      });
+      setViewMode(cycleViewModeLeft);
       return;
     }
 

@@ -6,7 +6,7 @@ import { parsePatch } from "./parse.js";
 import { flatten } from "./flatten.js";
 import { Viewport } from "./components/viewport.js";
 import { HelpOverlay } from "./components/help-overlay.js";
-import { useNavigation } from "./hooks/use-navigation.js";
+import { useNavigation, computeMaxOffset } from "./hooks/use-navigation.js";
 import { useTerminalSize } from "./hooks/use-terminal-size.js";
 
 function currentFileName(rows: FlatRow[], scrollOffset: number): string | null {
@@ -84,8 +84,7 @@ export function App({ files: initialFiles, range, diffOpts }: AppProps) {
   }, []);
 
   useEffect(() => {
-    const maxOffset = Math.max(0, rows.length - height);
-    setScrollOffset((prev) => Math.min(prev, maxOffset));
+    setScrollOffset((prev) => Math.min(prev, computeMaxOffset(rows, height)));
   }, [rows.length, height]);
 
   useNavigation({

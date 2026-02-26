@@ -35,6 +35,17 @@ Navigation and input handling lives in `hooks/use-navigation.ts`. The main app c
 - vitest for testing
 - meow for CLI argument parsing
 
+## Testing
+
+Write tests for bug fixes and new features. Tests live in `tests/` and use vitest. Extract testable logic into pure exported functions rather than testing through React hooks or components. Run `npm test` to verify all tests pass before finishing.
+
+## Versioning
+
+When bumping the version, update all three locations:
+- `package.json` — `"version"` field
+- `README.md` — `**vX.Y.Z**` badge near the top
+- `src/components/summary.tsx` — `VERSION` constant
+
 ## Git Policy
 
 Never run `git add`, `git commit`, `git merge`, or `git push` without explicit user permission.

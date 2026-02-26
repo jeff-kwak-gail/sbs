@@ -1,6 +1,6 @@
 {
   "name": "@kwak/sbs",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Side-by-side git diff TUI",
   "type": "module",
   "license": "MIT",
